@@ -1,0 +1,17 @@
+# Netlify configuration for bloom tracker
+# Static frontend (index.html) served from the repo root; TypeScript functions
+# under netlify/functions are bundled automatically by Netlify (esbuild).
+
+[build]
+  publish = "."
+  # No build step — index.html is static and functions are bundled by Netlify.
+  command = ""
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[dev]
+  # `netlify dev` serves index.html and the functions together at localhost:8888
+  publish = "."
+  port = 8888

@@ -5,28 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bloom tracker 🌿</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 :root{--pink-50:#FDF0F5;--pink-100:#F9D6E7;--pink-200:#F2AECF;--pink-400:#D4537E;--pink-600:#993556;--sage-50:#F0F5F0;--sage-100:#D4E4D4;--sage-200:#A8C9A8;--sage-400:#6B9E6B;--sage-600:#3D6B3D;--cream:#FDFAF7;--text-dark:#2C2416;--text-mid:#6B5E52;--text-light:#9E9088;--danger:#A32D2D;--danger-bg:#FCEBEB;--success:#3B6D11;--success-bg:#EAF3DE;--info:#185FA5;--info-bg:#EBF3FB;--warning:#854F0B;--warning-bg:#FAEEDA;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;}
 
-#setup-screen{display:none;position:fixed;inset:0;background:var(--cream);z-index:1000;align-items:center;justify-content:center;}
-#setup-screen.show{display:flex;}
-.setup-card{background:white;border-radius:24px;border:1px solid var(--pink-200);padding:40px;width:520px;max-width:92vw;box-shadow:0 8px 48px rgba(212,83,126,.1);}
-.setup-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+#auth-screen{display:none;position:fixed;inset:0;background:var(--cream);z-index:1000;align-items:center;justify-content:center;}
+#auth-screen.show{display:flex;}
+.setup-card{background:white;border-radius:24px;border:1px solid var(--pink-200);padding:40px;width:440px;max-width:92vw;box-shadow:0 8px 48px rgba(212,83,126,.1);}
+.setup-logo{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
 .setup-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--pink-200),var(--sage-200));display:flex;align-items:center;justify-content:center;font-size:22px;}
 .setup-logo-text{font-size:22px;font-weight:700;color:var(--pink-600);}
 .setup-logo-sub{font-size:12px;color:var(--text-light);}
-.setup-heading{font-size:16px;font-weight:600;color:var(--text-dark);margin-bottom:6px;}
-.setup-sub{font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:22px;}
 .setup-label{font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block;}
 .setup-input{border:1px solid var(--pink-100);border-radius:10px;padding:10px 14px;font-size:13px;outline:none;color:var(--text-dark);width:100%;font-family:inherit;transition:border .15s;margin-bottom:14px;}
 .setup-input:focus{border-color:var(--pink-400);box-shadow:0 0 0 3px rgba(212,83,126,.08);}
 .setup-btn{background:var(--pink-400);color:white;border:none;border-radius:12px;padding:12px;font-size:14px;cursor:pointer;font-weight:600;width:100%;font-family:inherit;transition:background .2s;margin-top:4px;}
 .setup-btn:hover{background:var(--pink-600);}
-.setup-hint{font-size:11px;color:var(--text-light);margin-top:16px;line-height:1.7;}
-.setup-hint a{color:var(--sage-600);}
-hr.setup-div{border:none;border-top:1px solid var(--pink-100);margin:18px 0;}
+.setup-btn:disabled{opacity:.6;cursor:default;}
+.setup-hint{font-size:11px;color:var(--text-light);margin-top:18px;line-height:1.7;text-align:center;}
+.auth-tabs{display:flex;gap:6px;background:var(--pink-50);border-radius:12px;padding:4px;margin-bottom:22px;}
+.auth-tab{flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;font-weight:600;color:var(--text-mid);cursor:pointer;user-select:none;transition:all .15s;}
+.auth-tab.active{background:white;color:var(--pink-600);box-shadow:0 1px 4px rgba(212,83,126,.12);}
+.auth-error{font-size:12px;color:var(--danger);min-height:16px;margin:-6px 0 10px;}
 
 .topbar{background:var(--pink-50);border-bottom:1px solid var(--pink-200);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
 .logo{display:flex;align-items:center;gap:10px;}
@@ -36,14 +38,7 @@ hr.setup-div{border:none;border-top:1px solid var(--pink-100);margin:18px 0;}
 .topbar-right{display:flex;align-items:center;gap:8px;}
 .tb-btn{background:white;border:1px solid var(--pink-200);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:all .15s;font-family:inherit;}
 .tb-btn:hover{background:var(--pink-50);color:var(--pink-600);}
-.sync-btn{background:white;border:1px solid var(--sage-200);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--sage-600);cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;font-family:inherit;}
-.sync-btn:hover{background:var(--sage-50);}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--sage-400);flex-shrink:0;transition:background .3s;}
-
-.config-strip{background:var(--sage-50);border-bottom:1px solid var(--sage-100);padding:7px 28px;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text-mid);}
-.config-strip a{color:var(--sage-600);text-decoration:none;}
-.change-btn{background:none;border:1px solid var(--sage-200);border-radius:6px;padding:2px 10px;font-size:11px;cursor:pointer;color:var(--sage-600);font-family:inherit;}
-.change-btn:hover{background:var(--sage-100);}
+.user-chip{background:var(--sage-50);border:1px solid var(--sage-100);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--sage-600);display:flex;align-items:center;gap:6px;font-weight:600;}
 
 .nav{display:flex;gap:3px;padding:12px 28px 0;background:var(--pink-50);border-bottom:1px solid var(--pink-100);}
 .nav-tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:13px;cursor:pointer;color:var(--text-mid);border:1px solid transparent;border-bottom:none;background:transparent;transition:all .15s;user-select:none;}
@@ -170,14 +165,32 @@ textarea.finput{resize:vertical;min-height:70px;}
 .forest-ground{height:3px;background:linear-gradient(90deg,var(--sage-100),var(--sage-200),var(--sage-100));border-radius:2px;margin-top:12px;}
 .forest-tip{font-size:12px;color:var(--text-light);text-align:center;margin-top:14px;font-style:italic;}
 
+/* COMMUNITY */
+.comm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.chart-card,.feed-card{background:white;border-radius:14px;padding:18px;border:1px solid var(--sage-100);}
+.chart-card.wide,.feed-card{grid-column:1/-1;}
+.chart-wrap{position:relative;height:240px;}
+.feed-list{max-height:380px;overflow-y:auto;padding-right:4px;}
+.feed-item{display:flex;align-items:flex-start;gap:12px;padding:10px 4px;border-bottom:1px solid var(--sage-50);animation:feedIn .45s ease;}
+.feed-item:last-child{border-bottom:none;}
+.feed-ic{font-size:18px;flex-shrink:0;line-height:1.3;}
+.feed-body{flex:1;min-width:0;}
+.feed-text{font-size:13px;color:var(--text-dark);}
+.feed-text strong{color:var(--pink-600);font-weight:600;}
+.feed-sub{font-size:11px;color:var(--text-light);margin-top:2px;}
+.feed-time{color:var(--sage-400);}
+.feed-empty{text-align:center;color:var(--text-light);font-size:13px;font-style:italic;padding:30px 10px;}
+@keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.privacy-note{font-size:11px;color:var(--text-light);margin:-8px 0 16px;display:flex;align-items:center;gap:6px;}
+
 .toast{position:fixed;bottom:24px;right:24px;background:var(--sage-600);color:white;border-radius:12px;padding:11px 20px;font-size:13px;opacity:0;transition:opacity .3s,transform .3s;z-index:300;pointer-events:none;transform:translateY(8px);}
 .toast.show{opacity:1;transform:translateY(0);}
 </style>
 </head>
 <body>
 
-<!-- SETUP -->
-<div id="setup-screen" class="show">
+<!-- AUTH -->
+<div id="auth-screen" class="show">
   <div class="setup-card">
     <div class="setup-logo">
       <div class="setup-icon">🌿</div>
@@ -186,22 +199,21 @@ textarea.finput{resize:vertical;min-height:70px;}
         <div class="setup-logo-sub">your job search garden</div>
       </div>
     </div>
-    <div class="setup-heading">Connect your Google Sheet</div>
-    <div class="setup-sub">All data lives in your own Google Sheet — nothing stored in this file. Open on any browser, any device, always in sync.</div>
-    <label class="setup-label">Google Sheet ID</label>
-    <input class="setup-input" id="sid" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
-    <label class="setup-label">Apps Script Web App URL</label>
-    <input class="setup-input" id="surl" placeholder="https://script.google.com/macros/s/.../exec">
-    <button class="setup-btn" onclick="doSetup()">Connect &amp; open tracker</button>
-    <div class="setup-hint">
-      <strong>Setup (5 min):</strong><br>
-      1. Create a Google Sheet → copy its ID from the URL (the long string between /d/ and /edit)<br>
-      2. Go to <a href="https://script.google.com" target="_blank">script.google.com</a> → New project → paste the script → Deploy as Web App → Execute as Me → Anyone → copy URL<br>
-      3. Paste both fields above<br><br>
-      <a href="#" onclick="dlScript()">⬇ Download Apps Script code</a>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="setAuthMode('login')">Log in</div>
+      <div class="auth-tab" id="tab-signup" onclick="setAuthMode('signup')">Sign up</div>
     </div>
-    <hr class="setup-div">
-    <div style="font-size:12px;color:var(--text-light);text-align:center">Your config is remembered in this browser next time.</div>
+    <div id="name-field" style="display:none">
+      <label class="setup-label">Display name</label>
+      <input class="setup-input" id="au-name" placeholder="e.g. Alex" autocomplete="name">
+    </div>
+    <label class="setup-label">Email</label>
+    <input class="setup-input" id="au-email" type="email" placeholder="you@example.com" autocomplete="email">
+    <label class="setup-label">Password</label>
+    <input class="setup-input" id="au-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    <div class="auth-error" id="au-error"></div>
+    <button class="setup-btn" id="au-submit" onclick="submitAuth()">Log in</button>
+    <div class="setup-hint">Your applications sync instantly and join the community garden 🌿</div>
   </div>
 </div>
 
@@ -216,28 +228,22 @@ textarea.finput{resize:vertical;min-height:70px;}
       </div>
     </div>
     <div class="topbar-right">
-      <a class="tb-btn" id="sheet-link" href="#" target="_blank"><i class="ti ti-table" aria-hidden="true"></i> Open sheet</a>
       <button class="tb-btn" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i> Export CSV</button>
-      <button class="sync-btn" onclick="syncNow()">
-        <span class="sync-dot" id="sdot"></span>
-        <span id="stext">loading...</span>
-      </button>
+      <span class="user-chip"><i class="ti ti-user" aria-hidden="true"></i> <span id="user-name">…</span></span>
+      <button class="tb-btn" onclick="doSignout()"><i class="ti ti-logout" aria-hidden="true"></i> Sign out</button>
     </div>
   </div>
-  <div class="config-strip">
-    <span>Sheet: <a id="cfg-link" href="#" target="_blank">—</a></span>
-    <button class="change-btn" onclick="resetSetup()">Change sheet</button>
-  </div>
   <div class="nav">
-    <div class="nav-tab active" onclick="showTab('tracker',this)">📋 Applications</div>
-    <div class="nav-tab" onclick="showTab('insights',this)">📊 Insights</div>
-    <div class="nav-tab" onclick="showTab('timeline',this)">🗓 Timeline</div>
-    <div class="nav-tab" onclick="showTab('forest',this)">🌳 My Forest</div>
+    <div class="nav-tab active" data-tab="tracker" onclick="showTab('tracker')">📋 Applications</div>
+    <div class="nav-tab" data-tab="insights" onclick="showTab('insights')">📊 Insights</div>
+    <div class="nav-tab" data-tab="timeline" onclick="showTab('timeline')">🗓 Timeline</div>
+    <div class="nav-tab" data-tab="forest" onclick="showTab('forest')">🌳 My Forest</div>
+    <div class="nav-tab" data-tab="community" onclick="showTab('community')">🌍 Community</div>
   </div>
   <div class="main">
     <div id="loading-screen" class="show">
       <div class="spinner"></div>
-      <div style="font-size:14px;color:var(--text-mid)">Connecting to your sheet...</div>
+      <div style="font-size:14px;color:var(--text-mid)">Loading your garden...</div>
     </div>
 
     <!-- TRACKER -->
@@ -311,6 +317,29 @@ textarea.finput{resize:vertical;min-height:70px;}
       </div>
       <div class="forest-tip" id="ftip"></div>
     </div>
+
+    <!-- COMMUNITY -->
+    <div id="tab-community" style="display:none">
+      <div class="sec-header" style="margin-bottom:6px"><span class="sec-title">Community garden</span></div>
+      <div class="privacy-note"><i class="ti ti-info-circle"></i> Stats below are pooled across everyone using bloom right now.</div>
+      <div class="stats-row">
+        <div class="stat-card sage"><div class="stat-num" id="c-users">0</div><div class="stat-label">Gardeners</div></div>
+        <div class="stat-card"><div class="stat-num" id="c-apps">0</div><div class="stat-label">Applications</div></div>
+        <div class="stat-card sage"><div class="stat-num" id="c-avg">0</div><div class="stat-label">Avg / person</div></div>
+        <div class="stat-card"><div class="stat-num" id="c-interview" style="color:var(--info)">0%</div><div class="stat-label">Interview rate</div></div>
+        <div class="stat-card"><div class="stat-num" id="c-offer" style="color:var(--success)">0%</div><div class="stat-label">Offer rate</div></div>
+        <div class="stat-card sage"><div class="stat-num" id="c-response">0%</div><div class="stat-label">Response rate</div></div>
+      </div>
+      <div class="comm-grid">
+        <div class="chart-card"><div class="it">Status mix (everyone)</div><div class="chart-wrap"><canvas id="chart-status"></canvas></div></div>
+        <div class="chart-card"><div class="it">Most-applied companies</div><div class="chart-wrap"><canvas id="chart-company"></canvas></div></div>
+        <div class="chart-card wide"><div class="it">Monthly application volume</div><div class="chart-wrap"><canvas id="chart-volume"></canvas></div></div>
+        <div class="feed-card">
+          <div class="it">Live activity feed 🌱</div>
+          <div class="feed-list" id="feed-list"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -357,116 +386,227 @@ textarea.finput{resize:vertical;min-height:70px;}
 </div>
 <div class="toast" id="toast"></div>
 
-<script>
-const CFG_KEY = "bloom-cfg-v1";
-let cfg = { sheetId:"", scriptUrl:"" };
-let jobs = [];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* ============================================================
+   Firebase web config is fetched at runtime from the backend
+   (/.netlify/functions/config), which reads it from environment
+   variables — nothing is hard-coded in this file. These values are
+   PUBLIC (they ship to the browser); env just keeps them out of the repo.
+   ============================================================ */
+const API = "/.netlify/functions";
+
+let auth = null, db = null;
+
+/* ============================ State ============================ */
+let currentUser = null;
+let allJobs = [];      // full community pool
+let myJobs = [];       // current user's own records
+let jobs = [];         // alias of myJobs — drives tracker/insights/timeline/forest
 let filter = "All";
 let editId = null;
 let sf = "date", sd = -1;
-let saveTimer = null;
+let activeTab = "tracker";
+let authMode = "login";
+let firstLoad = true;
+let unsubApps = null, unsubFeed = null;
+let charts = {};
 
-function loadCfg(){ try{ const s=localStorage.getItem(CFG_KEY); if(s) cfg=JSON.parse(s); }catch(e){} }
-function saveCfg(){ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+/* ============================ Auth UI ============================ */
+function val(id){ return (document.getElementById(id).value || "").trim(); }
 
-function doSetup(){
-  const sid = document.getElementById("sid").value.trim();
-  const surl = document.getElementById("surl").value.trim();
-  if(!sid||!surl){ alert("Please fill in both fields."); return; }
-  cfg={sheetId:sid,scriptUrl:surl}; saveCfg(); launchApp();
+window.setAuthMode = function(m){
+  authMode = m;
+  document.getElementById("tab-login").classList.toggle("active", m==="login");
+  document.getElementById("tab-signup").classList.toggle("active", m==="signup");
+  document.getElementById("name-field").style.display = m==="signup" ? "block" : "none";
+  document.getElementById("au-submit").textContent = m==="signup" ? "Create account" : "Log in";
+  document.getElementById("au-error").textContent = "";
+  document.getElementById("au-pass").setAttribute("autocomplete", m==="signup"?"new-password":"current-password");
+};
+
+function prettyAuthError(e){
+  const c = (e && e.code) || "";
+  if(c.includes("invalid-credential")||c.includes("wrong-password")||c.includes("user-not-found")) return "Email or password is incorrect.";
+  if(c.includes("email-already-in-use")) return "That email already has an account — try logging in.";
+  if(c.includes("invalid-email")) return "That doesn't look like a valid email.";
+  if(c.includes("weak-password")) return "Password should be at least 6 characters.";
+  if(c.includes("network")) return "Network error — check your connection.";
+  if(c.includes("configuration-not-found")||c.includes("api-key")) return "Firebase isn't configured yet — check the FIREBASE_* environment variables.";
+  return (e && e.message) || "Something went wrong.";
 }
 
-function resetSetup(){
-  if(!confirm("Switch to a different sheet?")) return;
-  localStorage.removeItem(CFG_KEY); location.reload();
-}
-
-function launchApp(){
-  document.getElementById("setup-screen").classList.remove("show");
-  document.getElementById("app").style.display="block";
-  const link=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/edit`;
-  document.getElementById("sheet-link").href=link;
-  document.getElementById("cfg-link").href=link;
-  document.getElementById("cfg-link").textContent=cfg.sheetId.slice(0,24)+"...";
-  initLoad();
-}
-
-async function api(action, body={}){
-  const base=cfg.scriptUrl+(cfg.scriptUrl.includes("?")?"&":"?");
-  const url=base+"action="+action+"&sheetId="+encodeURIComponent(cfg.sheetId);
-  if(action==="write"){
-    // POST with no-cors for writes — Apps Script can't send CORS headers on redirects
-    // We fire-and-forget then verify with a follow-up read
-    await fetch(url,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain"},
-      body:JSON.stringify({action,sheetId:cfg.sheetId,...body}),
-      redirect:"follow",
-      mode:"no-cors"
-    });
-    return {ok:true};
+window.submitAuth = async function(){
+  const email = val("au-email"), pass = val("au-pass"), name = val("au-name");
+  const errEl = document.getElementById("au-error");
+  errEl.textContent = "";
+  if(!email || !pass){ errEl.textContent = "Email and password are required."; return; }
+  const btn = document.getElementById("au-submit");
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = "…";
+  try{
+    if(authMode==="signup"){
+      if(!name){ errEl.textContent = "Please add a display name."; btn.disabled=false; btn.textContent=label; return; }
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+      await cred.user.reload();
+      await cred.user.getIdToken(true); // refresh so backend sees the name claim
+      document.getElementById("user-name").textContent = name;
+    } else {
+      await signInWithEmailAndPassword(auth, email, pass);
+    }
+  }catch(e){
+    errEl.textContent = prettyAuthError(e);
+    btn.disabled = false; btn.textContent = label;
   }
-  // GET for read/init — no CORS issue
-  const res=await fetch(url,{method:"GET",redirect:"follow"});
-  const d=await res.json();
-  if(!d.ok) throw new Error(d.error||"API error");
+};
+
+window.doSignout = function(){ signOut(auth); };
+
+/* ============================ App lifecycle ============================ */
+async function bootstrap(){
+  let config;
+  try{
+    const res = await fetch(API + "/config");
+    const d = await res.json();
+    if(!d.ok || !d.config) throw new Error(d.error || "config unavailable");
+    config = d.config;
+  }catch(e){
+    console.error("Firebase config load failed", e);
+    document.getElementById("au-error").textContent =
+      "Couldn't load Firebase config from the server — check the FIREBASE_* environment variables.";
+    return;
+  }
+  const app = initializeApp(config);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  onAuthStateChanged(auth, user => { if(user) startApp(user); else stopApp(); });
+}
+
+function startApp(user){
+  currentUser = user;
+  document.getElementById("auth-screen").classList.remove("show");
+  document.getElementById("app").style.display = "block";
+  document.getElementById("user-name").textContent = user.displayName || user.email;
+  document.getElementById("loading-screen").classList.add("show");
+  document.getElementById("tab-tracker").style.display = "none";
+  firstLoad = true;
+  subscribe();
+}
+
+function stopApp(){
+  if(unsubApps){ unsubApps(); unsubApps=null; }
+  if(unsubFeed){ unsubFeed(); unsubFeed=null; }
+  currentUser = null; allJobs = []; myJobs = []; jobs = [];
+  document.getElementById("app").style.display = "none";
+  document.getElementById("auth-screen").classList.add("show");
+  const btn = document.getElementById("au-submit");
+  btn.disabled = false; btn.textContent = authMode==="signup" ? "Create account" : "Log in";
+  document.getElementById("au-pass").value = "";
+}
+
+function subscribe(){
+  unsubApps = onSnapshot(collection(db, "applications"), snap => {
+    allJobs = snap.docs.map(mapDoc);
+    if(firstLoad){
+      firstLoad = false;
+      document.getElementById("loading-screen").classList.remove("show");
+      refreshUI();
+      activateTab(activeTab);
+      return;
+    }
+    refreshUI();
+  }, err => { console.error("applications snapshot error", err); });
+
+  unsubFeed = onSnapshot(query(collection(db,"feed"), orderBy("ts","desc"), limit(30)), snap => {
+    renderFeed(snap.docs.map(mapFeed));
+  }, err => { console.error("feed snapshot error", err); });
+}
+
+// Recompute derived lists from allJobs and re-render the active view.
+// Called both by the live snapshot and by optimistic local edits.
+function refreshUI(){
+  allJobs.sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  myJobs = allJobs.filter(j => j.ownerUid === (currentUser && currentUser.uid));
+  jobs = myJobs;
+  document.getElementById("app-sub").textContent = myJobs.length + " applications";
+  renderTable();
+  if(activeTab==="insights") renderInsights();
+  else if(activeTab==="timeline") renderTimeline();
+  else if(activeTab==="forest") renderForest();
+  else if(activeTab==="community") renderCommunity();
+}
+
+/* ============================ Mapping ============================ */
+function tsToISO(t){ try{ return t && t.toDate ? t.toDate().toISOString() : ""; }catch(e){ return ""; } }
+
+function mapDoc(d){
+  const x = d.data();
+  return {
+    id: d.id,
+    company: x.company||"", role: x.role||"", status: x.status||"Applied",
+    priority: x.priority||"", location: x.location||"", date: x.date||"",
+    salary: x.salary||"", url: x.url||"", recruiter: x.recruiter||"",
+    followup: x.followup||"", notes: x.notes||"",
+    starred: x.starred===true || x.starred==="true",
+    ownerUid: x.ownerUid||"", ownerName: x.ownerName||"Someone",
+    added: tsToISO(x.createdAt), updated: tsToISO(x.updatedAt)
+  };
+}
+
+function mapFeed(d){
+  const x = d.data();
+  return {
+    type: x.type||"applied", company: x.company||"", role: x.role||"",
+    status: x.status||"", ownerName: x.ownerName||"Someone",
+    ts: x.ts && x.ts.toDate ? x.ts.toDate() : null
+  };
+}
+
+/* ============================ Backend writes ============================ */
+async function authHeaders(){
+  const token = await currentUser.getIdToken();
+  return { "Authorization": "Bearer " + token, "Content-Type": "application/json" };
+}
+
+async function apiWrite(method, payload){
+  const headers = await authHeaders();
+  const res = await fetch(API + "/applications", { method, headers, body: JSON.stringify(payload) });
+  let d = {};
+  try{ d = await res.json(); }catch(e){ d = { ok:false, error:"Bad response from server" }; }
+  if(!res.ok || !d.ok) throw new Error(d.error || ("Request failed ("+res.status+")"));
   return d;
 }
 
-async function initLoad(){
-  setSS("loading","connecting...");
-  try{
-    await api("init");
-    const d=await api("read");
-    jobs=d.jobs||[];
-    document.getElementById("app-sub").textContent=jobs.length+" applications";
-    document.getElementById("loading-screen").classList.remove("show");
-    document.getElementById("tab-tracker").style.display="block";
-    renderTable();
-    setSS("ok","loaded "+jobs.length+" rows");
-  }catch(e){
-    setSS("err","connection failed");
-    document.getElementById("loading-screen").innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Could not connect</div><div style="font-size:13px;color:var(--text-light)">${e.message}<br><br><button onclick="initLoad()" style="background:var(--pink-400);color:white;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:13px;margin-top:8px">Retry</button></div></div>`;
-  }
-}
-
-async function push(){
-  setSS("saving","saving...");
-  try{
-    await api("write",{jobs});
-    // Wait a moment then verify with a read to confirm save landed
-    await new Promise(r=>setTimeout(r,1500));
-    const check=await api("read");
-    const t=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-    setSS("ok","saved "+jobs.length+" rows · "+t);
-    document.getElementById("app-sub").textContent=jobs.length+" applications";
-  }catch(e){ setSS("err","save failed — retry?"); }
-}
-async function syncNow(){ await push(); }
-function sched(){ clearTimeout(saveTimer); saveTimer=setTimeout(push,2500); }
-
-function setSS(s,t){
-  document.getElementById("stext").textContent=t;
-  const colors={ok:"var(--sage-400)",err:"var(--pink-400)",saving:"var(--sage-200)",loading:"#D4D0C8"};
-  document.getElementById("sdot").style.background=colors[s]||colors.loading;
-}
-
-function genId(){ return "j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+/* ============================ Helpers ============================ */
 function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function fmt(d){ if(!d)return"—"; const[y,m,day]=d.split("-"); if(!m)return d; const mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return mn[parseInt(m)]+" "+parseInt(day)+", "+y; }
+function fmt(d){ if(!d)return"—"; const[y,m,day]=String(d).split("-"); if(!m)return d; const mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return mn[parseInt(m)]+" "+parseInt(day)+", "+y; }
+function fmtMonth(m){ const[y,mo]=m.split("-"); const mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return mn[parseInt(mo)]+"'"+y.slice(2); }
 function sk(s){ return (s||"Applied").replace(/\s+/g,"-"); }
 function po(p){ return {High:0,Medium:1,Low:2}[p]||1; }
-function isStarred(j){ return j.starred==="true"||j.starred===true; }
-
-function setF(f,el){ filter=f; document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active")); el.classList.add("active"); renderTable(); }
-
-function sortBy(field){
-  if(sf===field) sd*=-1; else{sf=field;sd=1;}
-  document.querySelectorAll(".sa").forEach(a=>{a.textContent="↕";a.style.color="";});
-  const el=document.getElementById("sa-"+field);
-  if(el){el.textContent=sd===1?"↑":"↓";el.style.color="var(--pink-600)";}
-  renderTable();
+function isStarred(j){ return j.starred===true || j.starred==="true"; }
+function timeAgo(date){
+  if(!date) return "just now";
+  const s = Math.floor((Date.now()-date.getTime())/1000);
+  if(s<60) return "just now";
+  if(s<3600) return Math.floor(s/60)+"m ago";
+  if(s<86400) return Math.floor(s/3600)+"h ago";
+  return Math.floor(s/86400)+"d ago";
 }
+
+/* ============================ Tracker ============================ */
+window.setF = function(f,el){ filter=f; document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active")); el.classList.add("active"); renderTable(); };
+
+window.sortBy = function(field){
+  if(sf===field) sd*=-1; else{ sf=field; sd=1; }
+  document.querySelectorAll(".sa").forEach(a=>{ a.textContent="↕"; a.style.color=""; });
+  const el=document.getElementById("sa-"+field);
+  if(el){ el.textContent=sd===1?"↑":"↓"; el.style.color="var(--pink-600)"; }
+  renderTable();
+};
 
 function getList(){
   const q=(document.getElementById("qbox").value||"").toLowerCase();
@@ -483,7 +623,7 @@ function getList(){
   return list;
 }
 
-function renderTable(){
+window.renderTable = function(){
   const list=getList();
   const tb=document.getElementById("jtable");
   if(!list.length){
@@ -505,7 +645,7 @@ function renderTable(){
     </tr>`).join("");
   }
   updateStats();
-}
+};
 
 function updateStats(){
   const t=jobs.length;
@@ -517,12 +657,17 @@ function updateStats(){
   document.getElementById("s-star").textContent=jobs.filter(j=>isStarred(j)).length;
 }
 
-function toggleStar(id){
-  const j=jobs.find(x=>x.id===id);
-  if(j){j.starred=!isStarred(j);renderTable();sched();}
-}
+window.toggleStar = async function(id){
+  const j=allJobs.find(x=>x.id===id);
+  if(!j) return;
+  const next=!isStarred(j);
+  j.starred=next; refreshUI(); // optimistic
+  try{ await apiWrite("PUT", { id, starred: next }); }
+  catch(e){ j.starred=!next; refreshUI(); showToast("Couldn't save star — "+e.message); }
+};
 
-function openModal(id){
+/* ============================ Modal ============================ */
+window.openModal = function(id){
   editId=id||null;
   const j=id?jobs.find(x=>x.id===id):null;
   document.getElementById("mtitle").textContent=j?`${j.company} — ${j.role}`:"New application";
@@ -534,43 +679,69 @@ function openModal(id){
   });
   document.getElementById("mbg").classList.add("open");
   setTimeout(()=>document.getElementById("f-company").focus(),80);
-}
+};
 
-function closeModal(){ document.getElementById("mbg").classList.remove("open"); editId=null; }
-function closeMBg(e){ if(e.target.id==="mbg") closeModal(); }
+window.closeModal = function(){ document.getElementById("mbg").classList.remove("open"); editId=null; };
+window.closeMBg = function(e){ if(e.target.id==="mbg") closeModal(); };
 
-function saveJob(){
+window.saveJob = async function(){
   const co=document.getElementById("f-company").value.trim();
   const ro=document.getElementById("f-role").value.trim();
-  if(!co){document.getElementById("f-company").focus();showToast("Company name is required 🌸");return;}
-  if(!ro){document.getElementById("f-role").focus();showToast("Role is required 🌸");return;}
+  if(!co){ document.getElementById("f-company").focus(); showToast("Company name is required 🌸"); return; }
+  if(!ro){ document.getElementById("f-role").focus(); showToast("Role is required 🌸"); return; }
   const data={};
   ["company","role","status","priority","location","date","salary","url","recruiter","followup","notes"].forEach(k=>{
-    const el=document.getElementById("f-"+k);if(el)data[k]=el.value.trim();
+    const el=document.getElementById("f-"+k); if(el) data[k]=el.value.trim();
   });
-  const isNew=!editId;
-  if(editId){
-    const idx=jobs.findIndex(j=>j.id===editId);
-    if(idx!==-1) jobs[idx]={...jobs[idx],...data,updated:new Date().toISOString()};
+  const id=editId;
+  closeModal(); // close immediately — UI updates optimistically below
+
+  if(id){
+    // Optimistic edit: patch the local record, then sync in the background.
+    const j=allJobs.find(x=>x.id===id);
+    const before=j?{...j}:null;
+    if(j) Object.assign(j, data);
+    refreshUI();
     showToast("Updated 🌿");
+    apiWrite("PUT", { id, ...data }).catch(e=>{
+      if(j&&before) Object.assign(j, before);
+      refreshUI(); showToast("Save failed — "+e.message);
+    });
   } else {
-    jobs.unshift({id:genId(),...data,starred:false,added:new Date().toISOString()});
+    // Optimistic add: show a placeholder row immediately; the live snapshot
+    // will replace it with the server's real record (with its real id).
+    const tempId="tmp-"+Math.random().toString(36).slice(2);
+    allJobs.unshift({
+      id:tempId, ...data, status:data.status||"Applied", starred:false,
+      ownerUid:currentUser.uid, ownerName:currentUser.displayName||currentUser.email||"You",
+      added:new Date().toISOString(), updated:new Date().toISOString()
+    });
+    refreshUI();
     showToast("Application added 🌸 — a new tree is growing!");
+    apiWrite("POST", data).catch(e=>{
+      allJobs=allJobs.filter(x=>x.id!==tempId);
+      refreshUI(); showToast("Save failed — "+e.message);
+    });
   }
-  closeModal();
-  renderTable();renderInsights();renderTimeline();renderForest();
-  sched();
-}
+};
 
-function deleteJob(){
-  if(!editId||!confirm("Remove this application?"))return;
-  jobs=jobs.filter(j=>j.id!==editId);
+window.deleteJob = async function(){
+  if(!editId||!confirm("Remove this application?")) return;
+  const id=editId;
   closeModal();
-  renderTable();renderInsights();renderTimeline();renderForest();
-  showToast("Removed 🍂");sched();
-}
+  // Optimistic delete.
+  const idx=allJobs.findIndex(x=>x.id===id);
+  const removed=idx!==-1?allJobs[idx]:null;
+  if(idx!==-1) allJobs.splice(idx,1);
+  refreshUI();
+  showToast("Removed 🍂");
+  apiWrite("DELETE", { id }).catch(e=>{
+    if(removed) allJobs.push(removed);
+    refreshUI(); showToast("Delete failed — "+e.message);
+  });
+};
 
-// INSIGHTS
+/* ============================ Insights (personal) ============================ */
 function renderInsights(){
   const statuses=["Applied","Phone Screen","Interview","Offer","Rejected","Ghosted","Withdrawn"];
   const sc={},cc={},mc={},lc={};
@@ -590,7 +761,6 @@ function renderInsights(){
   const ofr=t?Math.round(jobs.filter(j=>j.status==="Offer").length/t*100):0;
   const rej=t?Math.round(jobs.filter(j=>j.status==="Rejected").length/t*100):0;
   const avg=months.length?Math.round(months.reduce((a,x)=>a+x[1],0)/months.length):0;
-  const fmtM=m=>{const[y,mo]=m.split("-");const n=["","J","F","M","A","M","J","J","A","S","O","N","D"];return n[parseInt(mo)]+"'"+y.slice(2);};
   document.getElementById("igrid").innerHTML=`
   <div class="ic"><div class="it">By status</div>${statuses.filter(s=>sc[s]>0).map(s=>`<div class="br"><div class="bl">${s}</div><div class="bt"><div class="bf" style="width:${Math.round(sc[s]/maxS*100)}%"></div></div><div class="bc">${sc[s]}</div></div>`).join("")||"<div style='color:var(--text-light);font-size:13px'>No data yet</div>"}</div>
   <div class="ic"><div class="it">Key metrics</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
@@ -601,10 +771,10 @@ function renderInsights(){
   </div></div>
   <div class="ic"><div class="it">Top locations</div>${topLoc.length?topLoc.map(([l,n])=>`<div class="br"><div class="bl">${esc(l)}</div><div class="bt"><div class="bf pink" style="width:${Math.round(n/maxL*100)}%"></div></div><div class="bc">${n}</div></div>`).join(""):"<div style='color:var(--text-light);font-size:13px'>No data yet</div>"}</div>
   <div class="ic half"><div class="it">Top companies</div>${topCo.length?topCo.map(([c,n])=>`<div class="br"><div class="bl" style="min-width:120px">${esc(c)}</div><div class="bt"><div class="bf pink" style="width:${Math.round(n/maxC*100)}%"></div></div><div class="bc">${n}</div></div>`).join(""):"<div style='color:var(--text-light);font-size:13px'>No data yet</div>"}</div>
-  <div class="ic wide"><div class="it">Monthly application volume</div>${months.length?`<div style="display:flex;align-items:flex-end;gap:10px;height:90px;padding-top:8px">${months.map(([m,n])=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="font-size:11px;color:var(--text-light);font-weight:500">${n}</div><div style="background:var(--pink-200);border-radius:4px 4px 0 0;width:100%;height:${Math.round(n/maxM*64)}px;min-height:4px"></div><div style="font-size:10px;color:var(--text-light)">${fmtM(m)}</div></div>`).join("")}</div>`:"<div style='color:var(--text-light);font-size:13px'>Add applications with dates to see volume trends.</div>"}</div>`;
+  <div class="ic wide"><div class="it">Monthly application volume</div>${months.length?`<div style="display:flex;align-items:flex-end;gap:10px;height:90px;padding-top:8px">${months.map(([m,n])=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="font-size:11px;color:var(--text-light);font-weight:500">${n}</div><div style="background:var(--pink-200);border-radius:4px 4px 0 0;width:100%;height:${Math.round(n/maxM*64)}px;min-height:4px"></div><div style="font-size:10px;color:var(--text-light)">${fmtMonth(m)}</div></div>`).join("")}</div>`:"<div style='color:var(--text-light);font-size:13px'>Add applications with dates to see volume trends.</div>"}</div>`;
 }
 
-// TIMELINE
+/* ============================ Timeline ============================ */
 function renderTimeline(){
   const sorted=[...jobs].filter(j=>j.date).sort((a,b)=>b.date>a.date?1:-1);
   const el=document.getElementById("tlcontent");
@@ -612,7 +782,7 @@ function renderTimeline(){
   el.innerHTML=sorted.map((j,i)=>`<div class="tl-row"><div class="tl-dc"><div class="tl-dot"></div>${i<sorted.length-1?'<div class="tl-line"></div>':''}</div><div style="flex:1"><div class="tl-co">${esc(j.company)}</div><div class="tl-role">${esc(j.role)}${j.location?` · <span style="color:var(--text-light)">${esc(j.location)}</span>`:''}</div><div class="tl-meta"><span class="pill s-${sk(j.status)}" style="font-size:10px;padding:2px 9px">${esc(j.status)}</span><span class="tl-date">${fmt(j.date)}</span>${j.followup?`<span class="tl-date" style="color:var(--sage-400)">· follow-up ${fmt(j.followup)}</span>`:''}</div>${j.notes?`<div class="tl-notes">${esc(j.notes)}</div>`:''}</div><button class="abtn" onclick="openModal('${j.id}')" title="Edit"><i class="ti ti-edit"></i></button></div>`).join("");
 }
 
-// FOREST 🌳
+/* ============================ Forest 🌳 ============================ */
 function renderForest(){
   const total=jobs.length;
   const full=Math.floor(total/50);
@@ -650,7 +820,6 @@ function drawTree(pct,idx,isFull){
     [[cx,72,28,"#4A7C59"],[cx,58,24,"#5A8F6A"],[cx,46,20,"#6BA07A"],[cx,36,16,"#7DB88C"],[cx,27,11,"#96CCA4"]].forEach(([x,cy,r,c])=>{
       canopy+=`<ellipse cx="${x}" cy="${cy}" rx="${r}" ry="${Math.round(r*.83)}" fill="${c}"/>`;
     });
-    // blossoms
     [[cx-13,54],[cx+11,49],[cx-7,39],[cx+9,37],[cx,62]].forEach(([x,y])=>{
       canopy+=`<circle cx="${x}" cy="${y}" r="3" fill="#F2AECF" opacity=".85"/>`;
     });
@@ -665,7 +834,6 @@ function drawTree(pct,idx,isFull){
       layers.push({r:Math.max(r,5),cy,c:cs[i%cs.length]});
     }
     layers.forEach(l=>{ canopy+=`<ellipse cx="${cx}" cy="${l.cy}" rx="${l.r}" ry="${Math.round(l.r*.83)}" fill="${l.c}"/>`; });
-    // blossoms on partial
     const bcount=Math.floor(pct*7);
     const bcol=pct<.3?"#F9D6E7":pct<.7?"#F2AECF":"#E07FAA";
     if(bcount>0&&layers.length){
@@ -681,102 +849,126 @@ function drawTree(pct,idx,isFull){
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${trunk}${canopy}</svg>`;
 }
 
-// EXPORT
-function exportCSV(){
+/* ============================ Community 🌍 ============================ */
+function renderCommunity(){
+  buildCommunityCharts();
+  refreshCommunityStats();
+}
+
+async function refreshCommunityStats(){
+  try{
+    const headers = await authHeaders();
+    const res = await fetch(API + "/stats", { headers });
+    const d = await res.json();
+    if(!d.ok) return;
+    setNum("c-users", d.totalUsers);
+    setNum("c-apps", d.totalApps);
+    setNum("c-avg", d.avgPerUser);
+    setNum("c-interview", d.interviewRate + "%");
+    setNum("c-offer", d.offerRate + "%");
+    setNum("c-response", d.responseRate + "%");
+  }catch(e){ /* ignore — charts still render from live snapshot */ }
+}
+
+function setNum(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; }
+
+function buildCommunityCharts(){
+  if(typeof Chart==="undefined") return;
+  const statuses=["Applied","Phone Screen","Interview","Offer","Rejected","Ghosted","Withdrawn"];
+  const sc={}; statuses.forEach(s=>sc[s]=0);
+  const cc={}, mc={};
+  allJobs.forEach(j=>{
+    sc[j.status]=(sc[j.status]||0)+1;
+    if(j.company)cc[j.company]=(cc[j.company]||0)+1;
+    if(j.date){const m=j.date.slice(0,7); if(/^\d{4}-\d{2}$/.test(m)) mc[m]=(mc[m]||0)+1;}
+  });
+  const palette=["#185FA5","#6B9E6B","#D4537E","#3B6D11","#A32D2D","#9E9088","#854F0B"];
+
+  destroyChart("status");
+  charts.status=new Chart(document.getElementById("chart-status"),{
+    type:"doughnut",
+    data:{labels:statuses,datasets:[{data:statuses.map(s=>sc[s]),backgroundColor:palette,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{font:{size:11},color:"#6B5E52",boxWidth:12}}}}
+  });
+
+  const top=Object.entries(cc).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  destroyChart("company");
+  charts.company=new Chart(document.getElementById("chart-company"),{
+    type:"bar",
+    data:{labels:top.map(x=>x[0]),datasets:[{data:top.map(x=>x[1]),backgroundColor:"#F2AECF",borderRadius:6}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0,color:"#9E9088"},grid:{color:"#F0F5F0"}},y:{ticks:{color:"#6B5E52",font:{size:11}},grid:{display:false}}}}
+  });
+
+  const months=Object.entries(mc).sort((a,b)=>a[0]>b[0]?1:-1);
+  destroyChart("volume");
+  charts.volume=new Chart(document.getElementById("chart-volume"),{
+    type:"line",
+    data:{labels:months.map(x=>fmtMonth(x[0])),datasets:[{data:months.map(x=>x[1]),borderColor:"#D4537E",backgroundColor:"rgba(212,83,126,.12)",fill:true,tension:.35,pointBackgroundColor:"#D4537E",pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0,color:"#9E9088"},grid:{color:"#F0F5F0"}},x:{ticks:{color:"#9E9088"},grid:{display:false}}}}
+  });
+}
+
+function destroyChart(k){ if(charts[k]){ charts[k].destroy(); delete charts[k]; } }
+
+function renderFeed(events){
+  const el=document.getElementById("feed-list");
+  if(!el) return;
+  if(!events.length){ el.innerHTML=`<div class="feed-empty">No activity yet — be the first to plant something 🌱</div>`; return; }
+  el.innerHTML=events.map(e=>{
+    const icon=e.type==="offer"?"🎉":e.type==="status"?"🔄":"🌱";
+    let text;
+    if(e.type==="offer") text=`<strong>${esc(e.ownerName)}</strong> got an offer from <strong>${esc(e.company)}</strong>!`;
+    else if(e.type==="status") text=`<strong>${esc(e.ownerName)}</strong> moved <strong>${esc(e.company)}</strong> → ${esc(e.status)}`;
+    else text=`<strong>${esc(e.ownerName)}</strong> applied to <strong>${esc(e.company)}</strong>`;
+    const sub=`${e.role?esc(e.role)+" · ":""}<span class="feed-time">${timeAgo(e.ts)}</span>`;
+    return `<div class="feed-item"><span class="feed-ic">${icon}</span><div class="feed-body"><div class="feed-text">${text}</div><div class="feed-sub">${sub}</div></div></div>`;
+  }).join("");
+}
+
+/* ============================ Tabs ============================ */
+function activateTab(name){
+  activeTab=name;
+  ["tracker","insights","timeline","forest","community"].forEach(t=>{
+    const el=document.getElementById("tab-"+t); if(el) el.style.display=t===name?"block":"none";
+  });
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+  if(name==="insights")renderInsights();
+  else if(name==="timeline")renderTimeline();
+  else if(name==="forest")renderForest();
+  else if(name==="community")renderCommunity();
+}
+window.showTab = function(name){ activateTab(name); };
+
+/* ============================ Export ============================ */
+window.exportCSV = function(){
   const hs=["id","company","role","status","priority","location","date","salary","url","recruiter","followup","notes","starred","added","updated"];
   const rows=[hs,...jobs.map(j=>hs.map(h=>`"${String(j[h]||"").replace(/"/g,'""')}"`))]
     .map(r=>r.join(",")).join("\n");
   const a=document.createElement("a");
   a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(rows);
   a.download="bloom-tracker-export.csv";a.click();
-}
+};
 
-// DOWNLOAD SCRIPT
-function dlScript(){
-  const code=`// bloom tracker — Apps Script Backend
-// Deploy: Web App → Execute as Me → Anyone can access
-const SHEET_NAME = "Applications";
-function doGet(e){ return handle(e); }
-function doPost(e){ return handle(e); }
-function handle(e){
-  try{
-    const p=e.parameter||{};
-    const b=e.postData?JSON.parse(e.postData.contents):{};
-    const action=p.action||b.action||"read";
-    const sheetId=p.sheetId||b.sheetId;
-    if(!sheetId) throw new Error("No sheetId");
-    const ss=SpreadsheetApp.openById(sheetId);
-    let r;
-    if(action==="read") r=readJobs(ss);
-    else if(action==="write") r=writeJobs(ss,b.jobs||[]);
-    else if(action==="init") r=initSheet(ss);
-    else throw new Error("Unknown action");
-    return out({ok:true,...r});
-  }catch(err){return out({ok:false,error:err.message});}
-}
-function out(d){ return ContentService.createTextOutput(JSON.stringify(d)).setMimeType(ContentService.MimeType.JSON); }
-function initSheet(ss){
-  let sheet=ss.getSheetByName(SHEET_NAME);
-  if(!sheet) sheet=ss.insertSheet(SHEET_NAME);
-  const headers=["id","company","role","status","priority","location","date","salary","url","recruiter","followup","notes","starred","added","updated"];
-  sheet.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight("bold").setBackground("#F9D6E7").setFontColor("#993556");
-  sheet.setFrozenRows(1);
-  sheet.getRange(2,4,1000,1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(["Applied","Phone Screen","Interview","Offer","Rejected","Ghosted","Withdrawn"]).build());
-  sheet.getRange(2,5,1000,1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(["High","Medium","Low"]).build());
-  return {message:"initialized"};
-}
-function readJobs(ss){
-  let sheet=ss.getSheetByName(SHEET_NAME);
-  if(!sheet){initSheet(ss);return{jobs:[]};}
-  const data=sheet.getDataRange().getValues();
-  if(data.length<=1) return{jobs:[]};
-  const headers=data[0];
-  return{jobs:data.slice(1).map(row=>{const j={};headers.forEach((h,i)=>{j[h]=row[i]===""?"":String(row[i]);});return j;}).filter(j=>j.id)};
-}
-function writeJobs(ss,jobs){
-  let sheet=ss.getSheetByName(SHEET_NAME);
-  if(!sheet){initSheet(ss);sheet=ss.getSheetByName(SHEET_NAME);}
-  const headers=["id","company","role","status","priority","location","date","salary","url","recruiter","followup","notes","starred","added","updated"];
-  if(sheet.getLastRow()>1) sheet.getRange(2,1,sheet.getLastRow()-1,headers.length).clearContent();
-  if(jobs&&jobs.length>0){
-    sheet.getRange(2,1,jobs.length,headers.length).setValues(jobs.map(j=>headers.map(h=>j[h]||"")));
-    const colors={"Applied":["#EBF3FB","#185FA5"],"Phone Screen":["#F0F5F0","#3D6B3D"],"Interview":["#F9D6E7","#993556"],"Offer":["#EAF3DE","#3B6D11"],"Rejected":["#FCEBEB","#A32D2D"],"Ghosted":["#F5F5F0","#6B6B60"],"Withdrawn":["#FAEEDA","#854F0B"]};
-    jobs.forEach((j,i)=>{const[bg,fg]=colors[j.status]||["#FFFFFF","#000000"];sheet.getRange(i+2,4).setBackground(bg).setFontColor(fg);});
-  }
-  return{written:jobs?jobs.length:0};
-}`;
-  const a=document.createElement("a");
-  a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(code);
-  a.download="bloom-tracker-script.gs";a.click();
-}
-
-// KEYBOARD
-document.addEventListener("keydown",e=>{
-  if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();if(document.getElementById("app").style.display!=="none")openModal();}
-  if(e.key==="Escape"&&document.getElementById("mbg").classList.contains("open"))closeModal();
-});
-
-function showTab(name,el){
-  ["tracker","insights","timeline","forest"].forEach(t=>{
-    const tab=document.getElementById("tab-"+t);if(tab)tab.style.display=t===name?"block":"none";
-  });
-  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
-  el.classList.add("active");
-  if(name==="insights")renderInsights();
-  if(name==="timeline")renderTimeline();
-  if(name==="forest")renderForest();
-}
-
+/* ============================ Toast + keyboard ============================ */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg;t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2800);
 }
 
-// INIT
-loadCfg();
-if(cfg.sheetId&&cfg.scriptUrl){ launchApp(); }
-else { document.getElementById("setup-screen").classList.add("show"); }
+document.addEventListener("keydown",e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==="k"){ e.preventDefault(); if(currentUser) openModal(); }
+  if(e.key==="Escape"&&document.getElementById("mbg").classList.contains("open")) closeModal();
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && document.getElementById("auth-screen").classList.contains("show")){
+    const a=document.activeElement;
+    if(a && ["au-email","au-pass","au-name"].includes(a.id)){ e.preventDefault(); submitAuth(); }
+  }
+});
+
+/* Kick everything off: load config from the backend, then init Firebase. */
+bootstrap();
 </script>
 </body>
 </html>

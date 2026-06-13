@@ -1,0 +1,22 @@
+{
+  "name": "bloom-tracker",
+  "version": "1.0.0",
+  "description": "Bloom job-application tracker — Firebase + TypeScript Netlify Functions backend",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "comments": {
+    "netlify-cli": "Not a dependency (incompatible with Node 25 postinstall). For local dev install it globally: npm i -g netlify-cli, then run `netlify dev`. Production deploys are bundled by Netlify's own build."
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.8.2",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.4"
+  }
+}
