@@ -1,5 +1,4 @@
-import type { HandlerEvent } from "@netlify/functions";
-import { adminAuth } from "./firebaseAdmin";
+import { adminAuth } from "./firebase-admin";
 
 export interface AuthedUser {
   uid: string;
@@ -15,15 +14,11 @@ export class HttpError extends Error {
   }
 }
 
-// Verifies the Firebase ID token from the Authorization header and returns the
-// caller's identity. Throws HttpError(401) when missing/invalid.
-export async function requireUser(event: HandlerEvent): Promise<AuthedUser> {
-  const header =
-    event.headers.authorization || event.headers.Authorization || "";
+// Verify the Firebase ID token from the Authorization header.
+export async function requireUser(req: Request): Promise<AuthedUser> {
+  const header = req.headers.get("authorization") || "";
   const match = header.match(/^Bearer\s+(.+)$/i);
-  if (!match) {
-    throw new HttpError(401, "Missing Authorization bearer token");
-  }
+  if (!match) throw new HttpError(401, "Missing Authorization bearer token");
 
   let decoded;
   try {

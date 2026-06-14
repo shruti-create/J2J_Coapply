@@ -1,0 +1,253 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { STATUSES, type Job } from "@/lib/types";
+import { fmtMonth, classifyRole } from "@/lib/job-utils";
+
+const FUNNEL_STAGES = ["Applied", "Phone Screen", "Interview", "Offer"] as const;
+const STAGE_ORDER: Record<string, number> = { Applied: 0, "Phone Screen": 1, Interview: 2, Offer: 3 };
+
+// 5-level GitHub-style heat color scale — absolute thresholds so 1 app is always lightest
+function heatColor(count: number): string {
+  if (count === 0) return "#EDF2ED";
+  if (count <= 2) return "#F9D0E3";
+  if (count <= 4) return "#F2AECF";
+  if (count <= 7) return "#D4537E";
+  return "#A32059";
+}
+
+export function InsightsTab({ jobs }: { jobs: Job[] }) {
+  const data = useMemo(() => {
+    const sc: Record<string, number> = {};
+    STATUSES.forEach((s) => (sc[s] = 0));
+    const cc: Record<string, number> = {};
+    const mc: Record<string, number> = {};
+    const lc: Record<string, number> = {};
+    const rc: Record<string, number> = {};
+    jobs.forEach((j) => {
+      sc[j.status] = (sc[j.status] || 0) + 1;
+      if (j.company) cc[j.company] = (cc[j.company] || 0) + 1;
+      if (j.date) {
+        const m = j.date.slice(0, 7);
+        mc[m] = (mc[m] || 0) + 1;
+      }
+      if (j.location) {
+        const l = j.location.split(",")[0].trim();
+        lc[l] = (lc[l] || 0) + 1;
+      }
+      const cat = j.roleCategory || classifyRole(j.role);
+      rc[cat] = (rc[cat] || 0) + 1;
+    });
+    const maxS = Math.max(1, ...Object.values(sc));
+    const topCo = Object.entries(cc).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const maxC = Math.max(1, ...topCo.map((x) => x[1]));
+    const topLoc = Object.entries(lc).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxL = Math.max(1, ...topLoc.map((x) => x[1]));
+    const topRoles = Object.entries(rc).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const maxR = Math.max(1, ...topRoles.map((x) => x[1]));
+    const months = Object.entries(mc).sort((a, b) => (a[0] > b[0] ? 1 : -1)).slice(-8);
+    const maxM = Math.max(1, ...months.map((x) => x[1]));
+    const t = jobs.length;
+
+    // Personal funnel: how many reached at least each stage
+    const funnelReached = FUNNEL_STAGES.map((s) =>
+      jobs.filter((j) => (STAGE_ORDER[j.status] ?? -1) >= STAGE_ORDER[s]).length
+    );
+
+    // Heatmap: last 91 days (13 weeks)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayMap: Record<string, number> = {};
+    jobs.forEach((j) => {
+      if (j.date) dayMap[j.date] = (dayMap[j.date] || 0) + 1;
+    });
+    // Build grid starting from Monday 13 weeks ago
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 90);
+    // Align to Monday
+    const dow = startDate.getDay(); // 0=Sun
+    startDate.setDate(startDate.getDate() - ((dow + 6) % 7));
+    const heatGrid: { date: string; count: number }[][] = [];
+    const cur = new Date(startDate);
+    while (cur <= today) {
+      const week: { date: string; count: number }[] = [];
+      for (let d = 0; d < 7; d++) {
+        const iso = cur.toISOString().slice(0, 10);
+        week.push({ date: iso, count: cur > today ? -1 : (dayMap[iso] || 0) });
+        cur.setDate(cur.getDate() + 1);
+      }
+      heatGrid.push(week);
+    }
+    return {
+      sc, maxS, topCo, maxC, topLoc, maxL, topRoles, maxR, months, maxM,
+      funnelReached,
+      heatGrid,
+      conv: t ? Math.round((jobs.filter((j) => ["Interview", "Offer"].includes(j.status)).length / t) * 100) : 0,
+      ofr: t ? Math.round((jobs.filter((j) => j.status === "Offer").length / t) * 100) : 0,
+      rej: t ? Math.round((jobs.filter((j) => j.status === "Rejected").length / t) * 100) : 0,
+      avg: months.length ? Math.round(months.reduce((a, x) => a + x[1], 0) / months.length) : 0,
+    };
+  }, [jobs]);
+
+  const [heatTip, setHeatTip] = useState<{ date: string; count: number; x: number; y: number } | null>(null);
+
+  const noData = <div style={{ color: "var(--text-light)", fontSize: 13 }}>No data yet</div>;
+
+  return (
+    <div className="ig">
+      <div className="ic">
+        <div className="it">By status</div>
+        {STATUSES.filter((s) => data.sc[s] > 0).length
+          ? STATUSES.filter((s) => data.sc[s] > 0).map((s) => (
+              <div className="br" key={s}>
+                <div className="bl">{s}</div>
+                <div className="bt"><div className="bf" style={{ width: `${Math.round((data.sc[s] / data.maxS) * 100)}%` }} /></div>
+                <div className="bc">{data.sc[s]}</div>
+              </div>
+            ))
+          : noData}
+      </div>
+
+      <div className="ic">
+        <div className="it">Key metrics</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div><div className="bm">{data.conv}%</div><div className="ml">interview rate</div></div>
+          <div><div className="bm sage">{data.ofr}%</div><div className="ml">offer rate</div></div>
+          <div><div className="bm" style={{ color: "var(--danger)" }}>{data.rej}%</div><div className="ml">rejection rate</div></div>
+          <div><div className="bm" style={{ color: "var(--text-mid)" }}>{data.avg}</div><div className="ml">apps / month</div></div>
+        </div>
+      </div>
+
+      <div className="ic">
+        <div className="it">Top locations</div>
+        {data.topLoc.length
+          ? data.topLoc.map(([l, n]) => (
+              <div className="br" key={l}>
+                <div className="bl">{l}</div>
+                <div className="bt"><div className="bf pink" style={{ width: `${Math.round((n / data.maxL) * 100)}%` }} /></div>
+                <div className="bc">{n}</div>
+              </div>
+            ))
+          : noData}
+      </div>
+
+      <div className="ic">
+        <div className="it">Top companies</div>
+        {data.topCo.length
+          ? data.topCo.map(([c, n]) => (
+              <div className="br" key={c}>
+                <div className="bl" style={{ minWidth: 120 }}>{c}</div>
+                <div className="bt"><div className="bf pink" style={{ width: `${Math.round((n / data.maxC) * 100)}%` }} /></div>
+                <div className="bc">{n}</div>
+              </div>
+            ))
+          : noData}
+      </div>
+
+      <div className="ic" style={{ position: "relative" }}>
+        <div className="it">Application pace</div>
+        {heatTip && (
+          <div style={{
+            position: "fixed", left: heatTip.x + 10, top: heatTip.y - 36,
+            background: "#1a1a1a", color: "#fff", fontSize: 12, borderRadius: 6,
+            padding: "5px 9px", pointerEvents: "none", zIndex: 9999, whiteSpace: "nowrap",
+            boxShadow: "0 2px 8px rgba(0,0,0,.25)",
+          }}>
+            <strong>{heatTip.count} app{heatTip.count !== 1 ? "s" : ""}</strong>
+            <span style={{ opacity: 0.7, marginLeft: 6 }}>{heatTip.date}</span>
+          </div>
+        )}
+        {jobs.some((j) => j.date) ? (
+          <div style={{ overflowX: "auto", paddingTop: 4 }} onMouseLeave={() => setHeatTip(null)}>
+            <div style={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, paddingTop: 2, marginRight: 4 }}>
+                {["Mon", "", "Wed", "", "Fri", "", "Sun"].map((label, i) => (
+                  <div key={i} style={{ height: 11, fontSize: 9, color: "var(--text-light)", lineHeight: "11px", width: 24, textAlign: "right" }}>
+                    {label}
+                  </div>
+                ))}
+              </div>
+              {data.heatGrid.map((week, wi) => (
+                <div key={wi} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  {week.map((day, di) => (
+                    <div
+                      key={di}
+                      onMouseEnter={day.count >= 0 ? (e) => setHeatTip({ date: day.date, count: day.count, x: e.clientX, y: e.clientY }) : undefined}
+                      onMouseMove={day.count >= 0 ? (e) => setHeatTip((t) => t ? { ...t, x: e.clientX, y: e.clientY } : null) : undefined}
+                      style={{
+                        width: 11, height: 11, borderRadius: 2, cursor: day.count > 0 ? "default" : undefined,
+                        background: day.count < 0 ? "transparent" : heatColor(day.count),
+                      }}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, justifyContent: "flex-end" }}>
+              <span style={{ fontSize: 10, color: "var(--text-light)" }}>Less</span>
+              {["#EDF2ED", "#F9D0E3", "#F2AECF", "#D4537E", "#A32059"].map((c) => (
+                <div key={c} style={{ width: 11, height: 11, borderRadius: 2, background: c }} />
+              ))}
+              <span style={{ fontSize: 10, color: "var(--text-light)" }}>More</span>
+            </div>
+          </div>
+        ) : (
+          <div style={{ color: "var(--text-light)", fontSize: 13 }}>Add applications with dates to see your pace.</div>
+        )}
+      </div>
+
+      <div className="ic">
+        <div className="it">Role categories</div>
+        {data.topRoles.length
+          ? data.topRoles.map(([r, n]) => (
+              <div className="br" key={r}>
+                <div className="bl">{r}</div>
+                <div className="bt"><div className="bf" style={{ width: `${Math.round((n / data.maxR) * 100)}%` }} /></div>
+                <div className="bc">{n}</div>
+              </div>
+            ))
+          : noData}
+      </div>
+
+      <div className="ic wide">
+        <div className="it">Monthly application volume</div>
+        {data.months.length ? (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 90, paddingTop: 8 }}>
+            {data.months.map(([m, n]) => (
+              <div key={m} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flex: 1 }}>
+                <div style={{ fontSize: 11, color: "var(--text-light)", fontWeight: 500 }}>{n}</div>
+                <div style={{ background: "var(--pink-200)", borderRadius: "4px 4px 0 0", width: "100%", height: Math.round((n / data.maxM) * 64), minHeight: 4 }} />
+                <div style={{ fontSize: 10, color: "var(--text-light)" }}>{fmtMonth(m)}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ color: "var(--text-light)", fontSize: 13 }}>Add applications with dates to see volume trends.</div>
+        )}
+      </div>
+
+      <div className="ic wide">
+        <div className="it">Your conversion funnel</div>
+        {jobs.length ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingTop: 4 }}>
+            {FUNNEL_STAGES.map((s, i) => {
+              const n = data.funnelReached[i];
+              const pct = jobs.length ? Math.round((n / jobs.length) * 100) : 0;
+              const colors = ["#185FA5", "#6B9E6B", "#D4537E", "#3B6D11"];
+              return (
+                <div key={s} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 96, fontSize: 12, color: "var(--text-mid)", flexShrink: 0 }}>{s}</div>
+                  <div style={{ flex: 1, background: "var(--sage-100)", borderRadius: 4, height: 14, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${pct}%`, background: colors[i], borderRadius: 4, minWidth: n > 0 ? 4 : 0, transition: "width .3s" }} />
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--text-mid)", width: 52, flexShrink: 0, textAlign: "right" }}>{n} ({pct}%)</div>
+                </div>
+              );
+            })}
+          </div>
+        ) : noData}
+      </div>
+
+    </div>
+  );
+}

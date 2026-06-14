@@ -1,8 +1,23 @@
+# dependencies
 node_modules/
+.pnp/
+.pnp.js
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# env
 .env
 .env.*
 !.env.example
+!.env.local.example
+
+# misc
 .netlify/
-dist/
 *.log
 .DS_Store
+*.tsbuildinfo
+next-env.d.ts
