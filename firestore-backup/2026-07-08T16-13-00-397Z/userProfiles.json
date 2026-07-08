@@ -1,0 +1,43 @@
+{
+  "5POPR6BIoqbfyw6cJo9Xizu9QoX2": {
+    "name": "Haas",
+    "updatedAt": "2026-07-08T00:15:57.000Z"
+  },
+  "CePgQhgdmae5nG6j6Jn7NZXJRbz2": {
+    "name": "Kriti",
+    "updatedAt": "2026-07-08T03:17:32.000Z"
+  },
+  "LOtKXb4beWRlH5JHjqjUrXY42Lp2": {
+    "githubUrl": "",
+    "linkedinUrl": "",
+    "websiteUrl": "",
+    "leetcodeRepoUrl": "",
+    "name": "Kartik",
+    "updatedAt": "2026-07-08T03:03:19.000Z"
+  },
+  "VdWqBGLzg9Oi0k7qbSlRMHWQLGM2": {
+    "githubUrl": "",
+    "linkedinUrl": "",
+    "websiteUrl": "",
+    "leetcodeRepoUrl": "https://github.com/shruti-create/LC",
+    "name": "Shruti",
+    "updatedAt": "2026-07-07T06:28:26.000Z",
+    "leetcodeLastSyncedAt": "2026-07-07T17:59:00.000Z"
+  },
+  "mvZNGlsTWXXeZg8Riww5vdko2yh2": {
+    "githubUrl": "",
+    "linkedinUrl": "",
+    "websiteUrl": "",
+    "name": "pandey",
+    "updatedAt": "2026-07-07T20:56:18.000Z"
+  },
+  "wzfwe59YfNOsqXWlu5DNZHJXS6s1": {
+    "leetcodeRepoUrl": "https://github.com/thehyperpineapple/leetcode",
+    "githubUrl": "https://github.com/thehyperpineapple",
+    "linkedinUrl": "https://www.linkedin.com/",
+    "websiteUrl": "https://s-raghav.vercel.app/",
+    "leetcodeLastSyncedAt": "2026-07-07T17:59:00.000Z",
+    "name": "Raghav Sampath",
+    "updatedAt": "2026-07-07T20:56:18.000Z"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "exportDate": "2026-07-08T16:13:03.320Z",
+  "totalCollections": 9,
+  "collections": {
+    "applications": {
+      "count": 146,
+      "exported": true
+    },
+    "feed": {
+      "count": 224,
+      "exported": true
+    },
+    "interviewPrep": {
+      "count": 3,
+      "exported": true
+    },
+    "interviewPrepComments": {
+      "count": 2,
+      "exported": true
+    },
+    "jobBoard": {
+      "count": 38,
+      "exported": true
+    },
+    "leetcodeProblems": {
+      "count": 10,
+      "exported": true
+    },
+    "resumeComments": {
+      "count": 6,
+      "exported": true
+    },
+    "resumes": {
+      "count": 3,
+      "exported": true
+    },
+    "userProfiles": {
+      "count": 6,
+      "exported": true
+    }
+  }
+}

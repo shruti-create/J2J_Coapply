@@ -1,0 +1,50 @@
+{
+  "80smaYhjnigp817jhaxC": {
+    "resumeId": "7x4zLmFUMJPvywsMzIgh",
+    "userId": "VdWqBGLzg9Oi0k7qbSlRMHWQLGM2",
+    "userName": "Shruti",
+    "text": "Hey Kartik! Great resume.",
+    "resolved": false,
+    "createdAt": "2026-06-22T02:10:59.000Z"
+  },
+  "IosuF1mDuir748hCNQVy": {
+    "resumeId": "7x4zLmFUMJPvywsMzIgh",
+    "userId": "VdWqBGLzg9Oi0k7qbSlRMHWQLGM2",
+    "userName": "Shruti",
+    "text": "seeing a lot of whitespace in the experiences, do you want to remove the second line where you write company name and combine with prev line so you can add more info?",
+    "resolved": false,
+    "createdAt": "2026-06-22T02:12:24.000Z"
+  },
+  "M3U0HJBmAWlTApLKSz90": {
+    "resumeId": "WBmravJQXeuFKT1qParg",
+    "userId": "VdWqBGLzg9Oi0k7qbSlRMHWQLGM2",
+    "userName": "Shruti",
+    "text": "Wow, great resume!",
+    "resolved": false,
+    "createdAt": "2026-06-21T04:44:56.000Z"
+  },
+  "O4r9DRvYR0mN4YmBvG3t": {
+    "resumeId": "7x4zLmFUMJPvywsMzIgh",
+    "userId": "VdWqBGLzg9Oi0k7qbSlRMHWQLGM2",
+    "userName": "Shruti",
+    "text": "also agree with raghav, i think maybe bold instead of underline?",
+    "resolved": false,
+    "createdAt": "2026-06-22T02:13:23.000Z"
+  },
+  "OOgR1r3TyKshdS40cd3G": {
+    "resumeId": "WBmravJQXeuFKT1qParg",
+    "userId": "wzfwe59YfNOsqXWlu5DNZHJXS6s1",
+    "userName": "Raghav Sampath",
+    "text": "maybe some keyword bolding in Experience Section?",
+    "resolved": false,
+    "createdAt": "2026-06-21T23:54:32.000Z"
+  },
+  "sPOKO0P7SJbymsWLs1qb": {
+    "resumeId": "7x4zLmFUMJPvywsMzIgh",
+    "userId": "wzfwe59YfNOsqXWlu5DNZHJXS6s1",
+    "userName": "Raghav Sampath",
+    "text": "- not sure if underlines is the move. bolding might be better\n- put links of the patents and research papers so it survives ATS stripping\n- small ick: move the dollar sign before the number\n- You've used the word build/bulding a total of 4 times. Maybe find alternatives. \n- Is your name in the header a different font? If so then change it so that it matches with the test",
+    "resolved": false,
+    "createdAt": "2026-06-22T02:12:06.000Z"
+  }
+}
